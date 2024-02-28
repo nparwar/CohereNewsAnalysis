@@ -46,7 +46,6 @@ def main():
             plt.ylabel('Cumulative Score')
             plt.title('Cumulative Sentiment Score Over Time')
             plt.grid(True)
-            plt.bar(df_final["Sentiment"])
             # Display the plot in Streamlit
             st.pyplot(plt)
 
