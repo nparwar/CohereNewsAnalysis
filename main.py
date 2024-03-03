@@ -3,6 +3,7 @@ from retrieve import get_NYT
 import pandas as pd
 from classify import classify_Data
 import matplotlib.pyplot as plt
+import pandas_datareader as pdr
 
 def main():
     #UI
@@ -28,24 +29,26 @@ def main():
         df = pd.DataFrame(articles_list, columns=["Title", "Date"])
         print(df)
         if(df.empty):
-            st.write("No Articles Found")
+            st.write("No Articles Found. Try extending the time period or picking another company.")
         else:
             df_final = classify_Data(df)
             df_final['Date'] = pd.to_datetime(df_final['Date']).dt.date
+            df_final = df_final.sort_values(by='Date')
             st.write(df_final)
             # Map sentiments to scores
             sentiment_scores = {'positive': 1, 'neutral': 0, 'negative': -1}
             df_final['Score'] = df_final['Sentiment'].map(sentiment_scores)
-            df_final = df_final.sort_values(by='Date')
             # Plotting
             # Calculate the cumulative sum
-            df_final['Cumulative Score'] = df_final['Score'].cumsum()
+            grouped_df = df_final.groupby('Date').sum()
+            grouped_df['Cumulative_Sum'] = grouped_df['Score'].cumsum()
             plt.figure(figsize=(10, 5))
-            plt.plot(df_final['Date'], df_final['Cumulative Score'], marker='o')
+            plt.plot(grouped_df.index, grouped_df["Cumulative_Sum"], marker='o')
             plt.xlabel('Date')
             plt.ylabel('Cumulative Score')
             plt.title('Cumulative Sentiment Score Over Time')
             plt.grid(True)
+            print(grouped_df)
             # Display the plot in Streamlit
             st.pyplot(plt)
 
